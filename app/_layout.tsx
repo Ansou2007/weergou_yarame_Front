@@ -109,12 +109,12 @@ export default function TabLayout() {
         options={{ href: null }}
 
       />
-      <Tabs.Screen
+      {/* <Tabs.Screen
         name="partie_pharmaciens/accueil_page_pharmaciens"
 
         options={{ href: null }}
 
-      />
+      /> */}
 
       <Tabs.Screen
         name="partie_pharmaciens/liste_pharmacies"

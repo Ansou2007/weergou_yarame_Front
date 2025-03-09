@@ -30,7 +30,7 @@ const HomeScreen = () => {
         <TouchableOpacity style={[styles.loginButtonContainer, { backgroundColor: "#38B674" }]} onPress={() => router.push("/accueil")}>
           <Text style={styles.loginButton}>Je suis particulier</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.loginButtonContainer} onPress={() => router.push("/connexion_inscription/SignupScreen")}>
+        <TouchableOpacity style={styles.loginButtonContainer} onPress={() => router.push("/connexion_inscription/LoginScreen")}>
           <Text style={styles.signupButton}>Je suis pharmacie</Text>
         </TouchableOpacity>
       </View>

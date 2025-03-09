@@ -91,12 +91,37 @@ export default function TabLayout() {
 
       />
 
-{/* <Tabs.Screen
+<Tabs.Screen
+        name="partie_pharmaciens/edit_garde"
+
+        options={{ href: null }}
+
+      />
+      <Tabs.Screen
+        name="partie_pharmaciens/edit_pharmacie"
+
+        options={{ href: null }}
+
+      />
+      <Tabs.Screen
+        name="partie_pharmaciens/edit_profile"
+
+        options={{ href: null }}
+
+      />
+      <Tabs.Screen
         name="partie_pharmaciens/accueil_page_pharmaciens"
 
         options={{ href: null }}
 
-      /> */}
+      />
+
+      <Tabs.Screen
+        name="partie_pharmaciens/liste_pharmacies"
+
+        options={{ href: null }}
+
+      />
 
 
 

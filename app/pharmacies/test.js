@@ -1,92 +1,63 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Linking, FlatList } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import { useRouter } from 'expo-router';
 
-const regions = {
-  Dakar: ['Dakar', 'Guédiawaye', 'Pikine', 'Rufisque'],
-  Thiès: ['Thiès', 'Mbour', 'Tivaouane'],
-  SaintLouis: ['Saint-Louis', 'Dagana', 'Podor'],
-  Diourbel: ['Diourbel', 'Bambey', 'Mbacké'],
-  Fatick: ['Fatick', 'Foundiougne', 'Gossas'],
-  Kaffrine: ['Birkelane', 'Kaffrine', 'Koungheul', 'Malem-Hodar'],
-  Kaolack: ['Kaolack', 'Nioro du Rip', 'Guinguinéo'],
-  Kedougou: ['Kédougou', 'Salemata', 'Saraya'],
-  Kolda: ['Kolda', 'Médina Yoro Foulah', 'Vélingara'],
-  Louga: ['Kébémer', 'Linguère', 'Louga'],
-  Matam: ['Kanel', 'Matam', 'Ranérou-Ferlo'],
-  Sedhiou: ['Bounkiling', 'Goudomp', 'Sédhiou'],
-  Tambacounda: ['Bakel', 'Goudiry', 'Koumpentoum', 'Tambacounda'],
-  Ziguinchor: ['Bignona', 'Oussouye', 'Ziguinchor'],
-};
-
-
-const pharmacies = {
+const pharmaciesParRegion = {
   Dakar: [
     { name: 'Pharmacie Médina', address: 'Rue 23, Médina, Dakar', phone: '33 823 45 67', maps: 'https://goo.gl/maps/X1v7a' },
     { name: 'Pharmacie Sacré-Cœur', address: 'Sacré-Cœur 3, Dakar', phone: '33 844 56 78', maps: 'https://goo.gl/maps/Y2w9b' },
+    { name: 'Pharmacie Rufisque', address: 'Marché Central, Rufisque', phone: '33 877 89 01', maps: 'https://goo.gl/maps/B5y2e' },
     { name: 'Pharmacie Médina', address: 'Rue 23, Médina, Dakar', phone: '33 823 45 67', maps: 'https://goo.gl/maps/X1v7a' },
     { name: 'Pharmacie Sacré-Cœur', address: 'Sacré-Cœur 3, Dakar', phone: '33 844 56 78', maps: 'https://goo.gl/maps/Y2w9b' },
   ],
-  Guédiawaye: [
-    { name: 'Pharmacie Guédiawaye', address: 'Boulevard du Centenaire, Guédiawaye', phone: '33 855 67 89', maps: 'https://goo.gl/maps/Z3x0c' },
+  Thiès: [
+    { name: 'Pharmacie Thiès Centre', address: 'Avenue Blaise Diagne, Thiès', phone: '33 812 34 56', maps: 'https://goo.gl/maps/Z5x8c' },
+    { name: 'Pharmacie Médina', address: 'Rue 23, Médina, Dakar', phone: '33 823 45 67', maps: 'https://goo.gl/maps/X1v7a' },
+    { name: 'Pharmacie Sacré-Cœur', address: 'Sacré-Cœur 3, Dakar', phone: '33 844 56 78', maps: 'https://goo.gl/maps/Y2w9b' },
   ],
-  Pikine: [
+  SaintLouis: [
+    { name: 'Pharmacie Saint-Louis', address: 'Quartier Nord, Saint-Louis', phone: '33 845 67 89', maps: 'https://goo.gl/maps/A9x1d' },
     { name: 'Pharmacie Pikine Centre', address: 'Route Nationale 1, Pikine', phone: '33 866 78 90', maps: 'https://goo.gl/maps/A4x1d' },
   ],
-  Rufisque: [
-    { name: 'Pharmacie Rufisque', address: 'Marché Central, Rufisque', phone: '33 877 89 01', maps: 'https://goo.gl/maps/B5y2e' },
+  Kaolack: [
+    { name: 'Pharmacie Kaolack', address: 'Boulevard de la République, Kaolack', phone: '33 822 45 78', maps: 'https://goo.gl/maps/B7y2e' },
   ],
 };
 
-export default function LocationSelector() {
+
+
+export default function ListePharmaciesParRegion() {
+  const router = useRouter();
   const [selectedRegion, setSelectedRegion] = useState('');
-  const [selectedDepartement, setSelectedDepartement] = useState('');
 
   return (
     <View style={styles.container}>
+
+      {/* Sélection de la région */}
       <Text style={styles.label}>Sélectionnez votre région :</Text>
       <View style={styles.pickerContainer}>
         <Picker
           selectedValue={selectedRegion}
-          onValueChange={(itemValue) => {
-            setSelectedRegion(itemValue);
-            setSelectedDepartement('');
-          }}
+          onValueChange={(value) => setSelectedRegion(value)}
           style={styles.picker}
         >
           <Picker.Item label="Choisir une région" value="" />
-          {Object.keys(regions).map((region) => (
+          {Object.keys(pharmaciesParRegion).map((region) => (
             <Picker.Item key={region} label={region} value={region} />
           ))}
         </Picker>
       </View>
 
-      {selectedRegion && (
+      {/* Liste des pharmacies */}
+      {selectedRegion && pharmaciesParRegion[selectedRegion] && (
         <>
-          <Text style={styles.label}>Sélectionnez votre département :</Text>
-          <View style={styles.pickerContainer}>
-            <Picker
-              selectedValue={selectedDepartement}
-              onValueChange={(itemValue) => setSelectedDepartement(itemValue)}
-              style={styles.picker}
-            >
-              <Picker.Item label="Choisir un département" value="" />
-              {regions[selectedRegion].map((departement) => (
-                <Picker.Item key={departement} label={departement} value={departement} />
-              ))}
-            </Picker>
-          </View>
-        </>
-      )}
-
-      {selectedDepartement && pharmacies[selectedDepartement] && (
-        <>
-          <Text style={styles.label}>Pharmacies de garde :</Text>
+          <Text style={styles.label}>Pharmacies de garde:</Text>
           <FlatList
-            data={pharmacies[selectedDepartement]}
+            data={pharmaciesParRegion[selectedRegion]}
             keyExtractor={(item) => item.name}
             renderItem={({ item }) => (
-              <View style={styles.pharmacyContainer}>
+              <View style={styles.pharmacyCard}>
                 <Text style={styles.pharmacyName}>{item.name}</Text>
                 <Text style={styles.pharmacyText}>📍 {item.address}</Text>
                 <Text style={styles.pharmacyText}>📞 {item.phone}</Text>
@@ -94,13 +65,18 @@ export default function LocationSelector() {
                   style={styles.mapButton}
                   onPress={() => Linking.openURL(item.maps)}
                 >
-                  <Text style={styles.mapButtonText}>Localisation</Text>
+                  <Text style={styles.mapButtonText}>Voir sur la carte</Text>
                 </TouchableOpacity>
               </View>
             )}
           />
         </>
       )}
+
+      {/* Bouton Retour */}
+      <TouchableOpacity onPress={() => router.push('/accueil_page_pharmaciens')} style={styles.backButton}>
+        <Text style={styles.backText}>Retour</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -110,9 +86,13 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: '#f9f9f9',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    paddingTop: 50,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 15,
+    textAlign: 'center',
+    color: '#333',
   },
   label: {
     fontSize: 16,
@@ -127,30 +107,20 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     overflow: 'hidden',
     marginBottom: 15,
-    width: '100%',
     elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
   },
   picker: {
     height: 50,
     width: '100%',
   },
-  pharmacyContainer: {
+  pharmacyCard: {
     backgroundColor: '#fff',
     padding: 15,
     borderRadius: 10,
     borderWidth: 1,
     borderColor: '#ddd',
     marginBottom: 10,
-    width: 340,
     elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
   },
   pharmacyName: {
     fontSize: 16,
@@ -173,5 +143,14 @@ const styles = StyleSheet.create({
   mapButtonText: {
     color: '#fff',
     fontWeight: 'bold',
+  },
+  backButton: {
+    marginTop: 20,
+    alignItems: 'center',
+    padding: 10,
+  },
+  backText: {
+    color: '#007AFF',
+    fontSize: 16,
   },
 });

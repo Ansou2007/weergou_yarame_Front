@@ -1,156 +1,136 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Linking, FlatList } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, FlatList, StyleSheet, ActivityIndicator } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import { useRouter } from 'expo-router';
 
-const pharmaciesParRegion = {
-  Dakar: [
-    { name: 'Pharmacie Médina', address: 'Rue 23, Médina, Dakar', phone: '33 823 45 67', maps: 'https://goo.gl/maps/X1v7a' },
-    { name: 'Pharmacie Sacré-Cœur', address: 'Sacré-Cœur 3, Dakar', phone: '33 844 56 78', maps: 'https://goo.gl/maps/Y2w9b' },
-    { name: 'Pharmacie Rufisque', address: 'Marché Central, Rufisque', phone: '33 877 89 01', maps: 'https://goo.gl/maps/B5y2e' },
-    { name: 'Pharmacie Médina', address: 'Rue 23, Médina, Dakar', phone: '33 823 45 67', maps: 'https://goo.gl/maps/X1v7a' },
-    { name: 'Pharmacie Sacré-Cœur', address: 'Sacré-Cœur 3, Dakar', phone: '33 844 56 78', maps: 'https://goo.gl/maps/Y2w9b' },
-  ],
-  Thiès: [
-    { name: 'Pharmacie Thiès Centre', address: 'Avenue Blaise Diagne, Thiès', phone: '33 812 34 56', maps: 'https://goo.gl/maps/Z5x8c' },
-    { name: 'Pharmacie Médina', address: 'Rue 23, Médina, Dakar', phone: '33 823 45 67', maps: 'https://goo.gl/maps/X1v7a' },
-    { name: 'Pharmacie Sacré-Cœur', address: 'Sacré-Cœur 3, Dakar', phone: '33 844 56 78', maps: 'https://goo.gl/maps/Y2w9b' },
-  ],
-  SaintLouis: [
-    { name: 'Pharmacie Saint-Louis', address: 'Quartier Nord, Saint-Louis', phone: '33 845 67 89', maps: 'https://goo.gl/maps/A9x1d' },
-    { name: 'Pharmacie Pikine Centre', address: 'Route Nationale 1, Pikine', phone: '33 866 78 90', maps: 'https://goo.gl/maps/A4x1d' },
-  ],
-  Kaolack: [
-    { name: 'Pharmacie Kaolack', address: 'Boulevard de la République, Kaolack', phone: '33 822 45 78', maps: 'https://goo.gl/maps/B7y2e' },
-  ],
-};
+const API_URL_GARDES = "https://wergouyaram.ctu.sn/api/v1/gardes";
+const API_URL_PHARMACIES = "https://wergouyaram.ctu.sn/api/pharmacies";
 
+// Liste des villes en dur
+const villes = [
+    { id: 1, nom: "Dakar" },
+    { id: 2, nom: "Thiès" },
+    { id: 3, nom: "Saint-Louis" },
+    { id: 4, nom: "Kaolack" },
+    { id: 4, nom: "Medina plateau" },
+    { id: 5, nom: "Ziguinchor" }
+];
 
+export default function PharmaciesDeGarde() {
+    const [pharmaciesGarde, setPharmaciesGarde] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [selectedVille, setSelectedVille] = useState(""); // Ville sélectionnée
 
-export default function ListePharmaciesParRegion() {
-  const router = useRouter();
-  const [selectedRegion, setSelectedRegion] = useState('');
+    useEffect(() => {
+        const fetchPharmaciesDeGarde = async () => {
+            try {
+                setLoading(true);
 
-  return (
-    <View style={styles.container}>
+                // 1️⃣ Récupérer la liste des pharmacies de garde
+                const response = await fetch(API_URL_GARDES);
+                const gardes = await response.json();
 
-      {/* Sélection de la région */}
-      <Text style={styles.label}>Sélectionnez votre région :</Text>
-      <View style={styles.pickerContainer}>
-        <Picker
-          selectedValue={selectedRegion}
-          onValueChange={(value) => setSelectedRegion(value)}
-          style={styles.picker}
-        >
-          <Picker.Item label="Choisir une région" value="" />
-          {Object.keys(pharmaciesParRegion).map((region) => (
-            <Picker.Item key={region} label={region} value={region} />
-          ))}
-        </Picker>
-      </View>
+                // 2️⃣ Récupérer les détails de chaque pharmacie
+                const promises = gardes.map(async (garde) => {
+                    const pharmacieResponse = await fetch(`${API_URL_PHARMACIES}/${garde.pharmacie_id}`);
+                    const pharmacieDetails = await pharmacieResponse.json();
+                    return { ...garde, ...pharmacieDetails };
+                });
 
-      {/* Liste des pharmacies */}
-      {selectedRegion && pharmaciesParRegion[selectedRegion] && (
-        <>
-          <Text style={styles.label}>Pharmacies de garde:</Text>
-          <FlatList
-            data={pharmaciesParRegion[selectedRegion]}
-            keyExtractor={(item) => item.name}
-            renderItem={({ item }) => (
-              <View style={styles.pharmacyCard}>
-                <Text style={styles.pharmacyName}>{item.name}</Text>
-                <Text style={styles.pharmacyText}>📍 {item.address}</Text>
-                <Text style={styles.pharmacyText}>📞 {item.phone}</Text>
-                <TouchableOpacity
-                  style={styles.mapButton}
-                  onPress={() => Linking.openURL(item.maps)}
-                >
-                  <Text style={styles.mapButtonText}>Voir sur la carte</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-          />
-        </>
-      )}
+                const pharmaciesAvecDetails = await Promise.all(promises);
+                setPharmaciesGarde(pharmaciesAvecDetails);
+            } catch (error) {
+                console.error("Erreur lors de la récupération des pharmacies :", error);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-      {/* Bouton Retour */}
-      <TouchableOpacity onPress={() => router.push('/accueil_page_pharmaciens')} style={styles.backButton}>
-        <Text style={styles.backText}>Retour</Text>
-      </TouchableOpacity>
-    </View>
-  );
+        fetchPharmaciesDeGarde();
+    }, []);
+
+    // Filtrer les pharmacies par ville sélectionnée
+    const filteredPharmacies = selectedVille
+        ? pharmaciesGarde.filter((pharmacie) => pharmacie.ville === selectedVille)
+        : pharmaciesGarde;
+
+    if (loading) {
+        return <ActivityIndicator size="large" color="#38B674" style={styles.loader} />;
+    }
+
+    return (
+        <View style={styles.container}>
+            <Text style={styles.title}>Pharmacies de Garde</Text>
+
+            {/* Liste déroulante pour sélectionner une ville */}
+            <Picker
+                selectedValue={selectedVille}
+                onValueChange={(itemValue) => setSelectedVille(itemValue)}
+                style={styles.picker}
+            >
+                <Picker.Item label="Toutes les villes" value="" />
+                {villes.map((ville) => (
+                    <Picker.Item key={ville.id} label={ville.nom} value={ville.nom} />
+                ))}
+            </Picker>
+
+            <FlatList
+                data={filteredPharmacies}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={({ item }) => (
+                    <View style={styles.pharmacyContainer}>
+                        <Text style={styles.pharmacyName}>{item.nom}</Text>
+                        <Text style={styles.pharmacyText}>📍 {item.adresse}</Text>
+                        <Text style={styles.pharmacyText}>📞 {item.telephone}</Text>
+                        <Text style={styles.pharmacyText}>🏙️ Ville : {item.ville}</Text>
+                        <Text style={styles.pharmacyText}>🕒 Garde : {item.type} ({item.date_debut} - {item.date_fin})</Text>
+                    </View>
+                )}
+            />
+        </View>
+    );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: '#f9f9f9',
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 15,
-    textAlign: 'center',
-    color: '#333',
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    color: '#333',
-  },
-  pickerContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    overflow: 'hidden',
-    marginBottom: 15,
-    elevation: 3,
-  },
-  picker: {
-    height: 50,
-    width: '100%',
-  },
-  pharmacyCard: {
-    backgroundColor: '#fff',
-    padding: 15,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    marginBottom: 10,
-    elevation: 3,
-  },
-  pharmacyName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 5,
-    color: '#38B674',
-  },
-  pharmacyText: {
-    fontSize: 14,
-    marginBottom: 3,
-    color: '#333',
-  },
-  mapButton: {
-    marginTop: 10,
-    padding: 8,
-    backgroundColor: '#38B674',
-    borderRadius: 5,
-    alignItems: 'center',
-  },
-  mapButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-  backButton: {
-    marginTop: 20,
-    alignItems: 'center',
-    padding: 10,
-  },
-  backText: {
-    color: '#007AFF',
-    fontSize: 16,
-  },
+    container: {
+        flex: 1,
+        padding: 20,
+        backgroundColor: '#f9f9f9',
+    },
+    title: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        marginBottom: 10,
+        textAlign: 'center',
+        color: '#333',
+    },
+    loader: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    picker: {
+        height: 50,
+        backgroundColor: '#fff',
+        marginBottom: 10,
+        borderRadius: 5,
+    },
+    pharmacyContainer: {
+        backgroundColor: '#fff',
+        padding: 15,
+        borderRadius: 10,
+        marginBottom: 10,
+        borderWidth: 1,
+        borderColor: '#ddd',
+        elevation: 3,
+    },
+    pharmacyName: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#38B674',
+    },
+    pharmacyText: {
+        fontSize: 14,
+        marginTop: 3,
+        color: '#333',
+    },
 });

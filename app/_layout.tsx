@@ -9,6 +9,7 @@ import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Fontisto from '@expo/vector-icons/Fontisto';
+import { Feather } from '@expo/vector-icons';
 
 
 export default function TabLayout() {
@@ -40,12 +41,16 @@ export default function TabLayout() {
         }}
       />
 
-      <Tabs.Screen
-        name="ordonnace/ordonnace"
+      
+
+     <Tabs.Screen
+        name="connexion_inscription/LoginScreen"
+
         options={{
-          title: 'Ordonnaces',
-          tabBarIcon: ({ color }) => <Fontisto name="prescription" size={30} color="#38B674" />,
+          title: 'Localisation',
+          tabBarIcon: ({ color }) => <Feather name="map-pin" size={30} color="#38B674" />,
         }}
+
       />
 
       <Tabs.Screen
@@ -57,7 +62,7 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-        name="evenements/explore"
+        name="accueil/parametre"
         options={{
           title: 'Parametre',
           tabBarIcon: ({ color }) => <AntDesign name="setting" size={30} color="#38B674" />,
@@ -78,14 +83,15 @@ export default function TabLayout() {
 
       />
 
+      
       <Tabs.Screen
-        name="connexion_inscription/LoginScreen"
+        name="connexion_inscription/SignupScreen"
 
         options={{ href: null }}
 
       />
       <Tabs.Screen
-        name="connexion_inscription/SignupScreen"
+        name="evenements/explore"
 
         options={{ href: null }}
 
@@ -109,12 +115,12 @@ export default function TabLayout() {
         options={{ href: null }}
 
       />
-      {/* <Tabs.Screen
+      <Tabs.Screen
         name="partie_pharmaciens/accueil_page_pharmaciens"
 
         options={{ href: null }}
 
-      /> */}
+      />
 
       <Tabs.Screen
         name="partie_pharmaciens/liste_pharmacies"

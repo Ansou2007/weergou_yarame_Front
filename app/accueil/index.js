@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, TextInput, Text, StyleSheet } from 'react-native';
 import { Link } from 'expo-router';
+import * as Location from 'expo-location'; // Importer Expo Location
 import { FontAwesome5, MaterialIcons, Ionicons } from 'react-native-vector-icons';
 import Icon from 'react-native-vector-icons/Feather';
 

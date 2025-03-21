@@ -44,7 +44,7 @@ export default function TabLayout() {
       
 
      <Tabs.Screen
-        name="connexion_inscription/LoginScreen"
+        name="pharmacies/localisation"
 
         options={{
           title: 'Localisation',
@@ -128,7 +128,12 @@ export default function TabLayout() {
         options={{ href: null }}
 
       />
+<Tabs.Screen
+        name="connexion_inscription/LoginScreen"
 
+        options={{ href: null }}
+
+      />
 
 
 

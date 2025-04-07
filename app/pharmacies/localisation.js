@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, ActivityIndicator, Alert, Text } from 'react-native';
-import { WebView } from 'react-native-webview';
+import { View, ActivityIndicator, Alert, StyleSheet } from 'react-native';
+import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 
 export default function PharmacieProche() {
@@ -11,8 +11,6 @@ export default function PharmacieProche() {
     useEffect(() => {
         (async () => {
             let { status } = await Location.requestForegroundPermissionsAsync();
-            console.log("Permission Status:", status); // 🔍 Debug
-
             if (status !== 'granted') {
                 setErrorMsg("Permission refusée. Activez la localisation.");
                 setLoading(false);
@@ -21,10 +19,8 @@ export default function PharmacieProche() {
 
             try {
                 let userLocation = await Location.getCurrentPositionAsync({});
-                console.log("Localisation récupérée :", userLocation); // 🔍 Debug
                 setLocation(userLocation.coords);
             } catch (error) {
-                console.error("Erreur lors de la récupération de la localisation :", error);
                 setErrorMsg("Impossible de récupérer la localisation.");
             } finally {
                 setLoading(false);
@@ -48,16 +44,46 @@ export default function PharmacieProche() {
         );
     }
 
-    const googleMapsUrl = `https://www.google.com/maps/search/pharmacie/@${location.latitude},${location.longitude},15z`;
-
     return (
-        <View style={{ flex: 1 }}>
-            <WebView source={{ uri: googleMapsUrl }} />
+        <View style={styles.container}>
+            <MapView
+                style={styles.map}
+                initialRegion={{
+                    latitude: location.latitude,
+                    longitude: location.longitude,
+                    latitudeDelta: 0.01,
+                    longitudeDelta: 0.01,
+                }}
+                showsUserLocation={true}
+            >
+                {/* Marqueur pour la position de l'utilisateur */}
+                <Marker
+                    coordinate={{ latitude: location.latitude, longitude: location.longitude }}
+                    title="Votre position"
+                    pinColor="blue"
+                />
+
+                {/* Pharmacies proches (exemple avec des coordonnées fictives) */}
+                <Marker
+                    coordinate={{ latitude: location.latitude + 0.002, longitude: location.longitude + 0.002 }}
+                    title="Pharmacie A"
+                    description="Ouverte 24h/24"
+                    pinColor="green"
+                />
+                <Marker
+                    coordinate={{ latitude: location.latitude - 0.002, longitude: location.longitude - 0.002 }}
+                    title="Pharmacie B"
+                    description="Fermeture à 22h"
+                    pinColor="green"
+                />
+            </MapView>
         </View>
     );
 }
 
-const styles = {
+const styles = StyleSheet.create({
+    container: { flex: 1 },
+    map: { flex: 1 },
     loaderContainer: {
         flex: 1,
         justifyContent: 'center',
@@ -74,4 +100,4 @@ const styles = {
         fontSize: 16,
         textAlign: 'center',
     },
-};
+});

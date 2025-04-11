@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Switch, StyleSheet, Alert, Appearance } from 'react-native';
+import React, { useState, useEffect, useContext } from 'react';
+import { View, Text, Switch, StyleSheet, Alert, Appearance, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
+import { AuthContext } from '@/context/AuthContext';
 
 export default function SettingsScreen() {
+    const { logout } = useContext(AuthContext);
     const [isLocationEnabled, setIsLocationEnabled] = useState(false);
     const [isDarkMode, setIsDarkMode] = useState(Appearance.getColorScheme() === 'dark');
     const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(false);
@@ -48,6 +50,23 @@ export default function SettingsScreen() {
         await AsyncStorage.setItem('notificationsEnabled', (!isNotificationsEnabled).toString());
     };
 
+    const handleLogout = () => {
+        Alert.alert(
+            "Déconnexion",
+            "Voulez-vous vraiment vous déconnecter ?",
+            [
+                { text: "Annuler", style: "cancel" },
+                {
+                    text: "Se déconnecter",
+                    onPress: () => {
+                        logout();
+                    },
+                    style: "destructive"
+                }
+            ]
+        );
+    };
+
     return (
         <View style={[styles.container, isDarkMode ? styles.darkContainer : styles.lightContainer]}>
             <Text style={[styles.title, isDarkMode ? styles.darkText : styles.lightText]}>Paramètres</Text>
@@ -67,9 +86,17 @@ export default function SettingsScreen() {
                 <Switch value={isNotificationsEnabled} onValueChange={toggleNotifications} />
             </View>
 
+            <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+                <Text style={styles.logoutText}>Se déconnecter</Text>
+            </TouchableOpacity>
+
             <View style={styles.about}>
-                <Text style={[styles.aboutText, isDarkMode ? styles.darkText : styles.lightText]}>Projet étudiant UNCHK Version : 1.0.0</Text>
-                <Text style={[styles.aboutText, isDarkMode ? styles.darkText : styles.lightText]}>Développé par Babacar NDIAYE & Ansoumane michel TAMBA 🚀</Text>
+                <Text style={[styles.aboutText, isDarkMode ? styles.darkText : styles.lightText]}>
+                    Projet étudiant UNCHK Version : 1.0.0
+                </Text>
+                <Text style={[styles.aboutText, isDarkMode ? styles.darkText : styles.lightText]}>
+                    Développé par Babacar NDIAYE & Ansoumane michel TAMBA 🚀
+                </Text>
             </View>
         </View>
     );
@@ -106,14 +133,25 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: '#ddd',
     },
+    logoutButton: {
+        backgroundColor: '#FF3B30',
+        paddingVertical: 15,
+        marginTop: 40,
+        borderRadius: 10,
+        alignItems: 'center',
+    },
+    logoutText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
     about: {
-        marginTop: 260,
+        marginTop: 60,
         alignItems: 'center',
     },
     aboutText: {
         fontSize: 15,
         color: '#666',
         textAlign: 'center',
-        
     },
 });

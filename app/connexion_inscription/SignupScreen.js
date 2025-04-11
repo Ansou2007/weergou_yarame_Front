@@ -59,7 +59,7 @@ const SignupScreen = () => {
 
 
             <TouchableOpacity style={styles.SignButtonContainer} onPress={() => router.push("/connexion_inscription/LoginScreen")}>
-                <Text style={styles.S_inscrire}>Se connecter</Text>
+                <Text style={styles.inscrire}>Se connecter</Text>
             </TouchableOpacity>
 
             <View style={styles.LeftvectorContainer}>
@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
         width: "90 %",
         fontSize: 15,
     },
-    S_inscrire: {
+    inscrire: {
         color: '#38B674',
         fontSize: 20,
         marginLeft: 230,

@@ -1,59 +1,109 @@
-import { Image, StyleSheet, Text, View, TextInput, TouchableOpacity, } from "react-native";
+import { Image, StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import React from "react";
-import { useNavigation } from "expo-router";
-import { useRouter } from "expo-router";
-import { useEffect } from "react";
-// import { TextInput } from "react-native-web";
+import React, { useState, useEffect, useContext } from "react";
+import { useNavigation, useRouter } from "expo-router";
+// import { AuthContext } from './AuthContext';
+import { AuthContext } from '@/context/AuthContext';
+
 
 const LoginScreen = () => {
-    const router = useRouter(); // Utilisation du routeur pour la navigation;
+    const router = useRouter();
     const navigation = useNavigation();
+    const { login } = useContext(AuthContext); // Pour appeler la méthode login du contexte
+
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         navigation.setOptions({ tabBarStyle: { display: "none" } });
     }, [navigation]);
 
+    const handleLogin = async () => {
+        if (!email || !password) {
+            Alert.alert("Erreur", "Veuillez entrer votre email et mot de passe.");
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const response = await fetch('https://wergouyaram.ctu.sn/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || "Erreur de connexion.");
+            }
+
+            login(data.token); // Stocke le token dans le contexte
+            Alert.alert("Succès", "Connexion réussie !");
+            router.replace("/partie_pharmaciens/accueil_page_pharmaciens");
+
+        } catch (error) {
+            Alert.alert("Erreur", error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <View style={styles.container}>
             <View style={styles.topImageContainer}>
-                <Image
-                    source={require('@/assets/images/topVector.png')}
-                    style={styles.topImage}
-                />
+                <Image source={require('@/assets/images/topVector.png')} style={styles.topImage} />
             </View>
+
             <View style={styles.helloContainer}>
                 <Text style={styles.helloText}>Bienvenue</Text>
             </View>
-            <View>
-                <Text style={styles.signInText}>Connectez-vous à votre compte</Text>
-            </View>
+
+            <Text style={styles.signInText}>Connectez-vous à votre compte</Text>
+
             <View style={styles.inputContainer}>
                 <FontAwesome name="user" size={24} color="#9A9A9A" style={styles.inputIcon} />
-                <TextInput style={styles.textInput} placeholder="Email" />
-
+                <TextInput 
+                    style={styles.textInput} 
+                    placeholder="Email"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    value={email}
+                    onChangeText={setEmail}
+                />
             </View>
 
             <View style={styles.inputContainer}>
                 <FontAwesome name="lock" size={24} color="#9A9A9A" style={styles.inputIcon} />
-                <TextInput style={styles.textInput} placeholder="Mot de pass" secureTextEntry />
-
+                <TextInput 
+                    style={styles.textInput} 
+                    placeholder="Mot de passe" 
+                    secureTextEntry 
+                    value={password}
+                    onChangeText={setPassword}
+                />
             </View>
-            <Text style={styles.forgetPasswordText}>Mot de pass oublié !</Text>
-            <TouchableOpacity style={styles.button} onPress={() => router.push("/partie_pharmaciens/accueil_page_pharmaciens")}>
-                <Text style={styles.buttonText}>Se connecter</Text>
+
+            <Text style={styles.forgetPasswordText}>Mot de passe oublié ?</Text>
+
+            <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
+                {loading ? (
+                    <ActivityIndicator color="#fff" />
+                ) : (
+                    <Text style={styles.buttonText}>Se connecter</Text>
+                )}
             </TouchableOpacity>
 
-
             <TouchableOpacity style={styles.SignButtonContainer} onPress={() => router.push("/connexion_inscription/SignupScreen")}>
-                <Text style={styles.S_inscrire}>S'inscrire</Text>
+                <Text style={styles.inscrire}>S'inscrire</Text>
             </TouchableOpacity>
 
             <View style={styles.LeftvectorContainer}>
-                <Image
-                    source={require('@/assets/images/Vector.png')}
-                    style={styles.LeftvectorImage}
-                />
+                <Image source={require('@/assets/images/Vector.png')} style={styles.LeftvectorImage} />
             </View>
         </View>
     );
@@ -99,19 +149,18 @@ const styles = StyleSheet.create({
     },
     textInput: {
         flex: 1,
+        paddingHorizontal: 10,
     },
-
     forgetPasswordText: {
         color: "#BEBEBE",
         textAlign: "right",
-        width: "90 %",
+        width: "90%",
         fontSize: 15,
     },
-    S_inscrire: {
+    inscrire: {
         color: '#38B674',
         fontSize: 20,
         marginLeft: 260,
-
     },
     button: {
         backgroundColor: "#38B674",
@@ -123,7 +172,6 @@ const styles = StyleSheet.create({
         marginHorizontal: 40,
     },
     buttonText: {
-        // color: "#38B674",
         color: "white",
         fontSize: 16,
         fontWeight: "bold",

@@ -1,5 +1,5 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
+import { Tabs, useRouter } from 'expo-router';
+import React, { useContext, useEffect } from 'react';
 import { Platform } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { HapticTab } from '@/components/HapticTab';
@@ -8,14 +8,20 @@ import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import Fontisto from '@expo/vector-icons/Fontisto';
 import { Feather } from '@expo/vector-icons';
+import { AuthProvider, AuthContext } from '@/context/AuthContext';
 
-
-export default function TabLayout() {
+function TabsWithAuth() {
   const colorScheme = useColorScheme();
+  const { userToken } = useContext(AuthContext);
+  const router = useRouter();
 
-
+  // Redirection si non connecté
+  useEffect(() => {
+    if (!userToken) {
+      router.replace('/connexion_inscription/LoginScreen');
+    }
+  }, [userToken]);
 
   return (
     <Tabs
@@ -26,13 +32,12 @@ export default function TabLayout() {
         tabBarBackground: TabBarBackground,
         tabBarStyle: Platform.select({
           ios: {
-            // Use a transparent background on iOS to show the blur effect
             position: 'absolute',
           },
           default: {},
         }),
-      }}>
-
+      }}
+    >
       <Tabs.Screen
         name="accueil/index"
         options={{
@@ -41,16 +46,12 @@ export default function TabLayout() {
         }}
       />
 
-      
-
-     <Tabs.Screen
+      <Tabs.Screen
         name="pharmacies/localisation"
-
         options={{
           title: 'Localisation',
           tabBarIcon: ({ color }) => <Feather name="map-pin" size={30} color="#38B674" />,
         }}
-
       />
 
       <Tabs.Screen
@@ -68,78 +69,26 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <AntDesign name="setting" size={30} color="#38B674" />,
         }}
       />
-      <Tabs.Screen
-        name="index"
 
-        options={{ href: null }}
-
-      />
-
-
-      <Tabs.Screen
-        name="explore"
-
-        options={{ href: null }}
-
-      />
-
-      
-      <Tabs.Screen
-        name="connexion_inscription/SignupScreen"
-
-        options={{ href: null }}
-
-      />
-      <Tabs.Screen
-        name="evenements/explore"
-
-        options={{ href: null }}
-
-      />
-
-<Tabs.Screen
-        name="partie_pharmaciens/edit_garde"
-
-        options={{ href: null }}
-
-      />
-      <Tabs.Screen
-        name="partie_pharmaciens/edit_pharmacie"
-
-        options={{ href: null }}
-
-      />
-      <Tabs.Screen
-        name="partie_pharmaciens/edit_profile"
-
-        options={{ href: null }}
-
-      />
-      <Tabs.Screen
-        name="partie_pharmaciens/accueil_page_pharmaciens"
-
-        options={{ href: null }}
-
-      />
-
-      <Tabs.Screen
-        name="partie_pharmaciens/liste_pharmacies"
-
-        options={{ href: null }}
-
-      />
-<Tabs.Screen
-        name="connexion_inscription/LoginScreen"
-
-        options={{ href: null }}
-
-      />
-
-
-
-
-
-
+      {/* Écrans sans onglets visibles */}
+      <Tabs.Screen name="index" options={{ href: null }} />
+      <Tabs.Screen name="explore" options={{ href: null }} />
+      <Tabs.Screen name="connexion_inscription/SignupScreen" options={{ href: null }} />
+      <Tabs.Screen name="connexion_inscription/LoginScreen" options={{ href: null }} />
+      <Tabs.Screen name="evenements/explore" options={{ href: null }} />
+      <Tabs.Screen name="partie_pharmaciens/edit_garde" options={{ href: null }} />
+      <Tabs.Screen name="partie_pharmaciens/edit_pharmacie" options={{ href: null }} />
+      <Tabs.Screen name="partie_pharmaciens/edit_profile" options={{ href: null }} />
+      <Tabs.Screen name="partie_pharmaciens/accueil_page_pharmaciens" options={{ href: null }} />
+      <Tabs.Screen name="partie_pharmaciens/liste_pharmacies" options={{ href: null }} />
     </Tabs>
+  );
+}
+
+export default function TabLayout() {
+  return (
+    <AuthProvider>
+      <TabsWithAuth />
+    </AuthProvider>
   );
 }

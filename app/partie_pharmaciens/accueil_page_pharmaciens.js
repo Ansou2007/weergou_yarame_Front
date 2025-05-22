@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { View, TextInput, Text, StyleSheet, Image, TouchableOpacity, FlatList, Linking } from 'react-native';
 import { Link } from 'expo-router';
 import Icon from 'react-native-vector-icons/Feather';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+import { AuthContext } from '@/context/AuthContext'; // 👈 Assure-toi que le chemin est correct
 
 const pharmacies = [
     { id: '1', name: 'Pharmacie Centrale', address: '123 Avenue de la Santé', lat: 14.6928, lng: -17.4467 },
@@ -25,15 +26,20 @@ const openLocation = (lat, lng) => {
 
 export default function HomeScreen() {
     const [searchText, setSearchText] = useState('');
+    const { user } = useContext(AuthContext); // ✅ Correct
 
     return (
         <View style={styles.container}>
             {/* En-tête */}
             <View style={styles.header}>
-                <Image
-                    source={{ uri: "https://www.institutmontaigne.org/ressources/images/Portraits/Babacar_Ndiaye.jpg" }}
-                    style={styles.userPhoto}
-                />
+                <View style={styles.userInfo}>
+                    <Image
+                        source={{ uri: "https://www.institutmontaigne.org/ressources/images/Portraits/Babacar_Ndiaye.jpg" }}
+                        style={styles.userPhoto}
+                    />
+                    {/* <Text style={styles.Name}>{Name ?? 'Bienvenue !'}</Text> */}
+                    <Text style={styles.Name}>Bienvenue, {user?.name}</Text>
+                </View>
                 <TouchableOpacity onPress={() => alert("Notifications")}>
                     <Icon name="bell" size={24} color="#333" />
                 </TouchableOpacity>
@@ -82,7 +88,6 @@ export default function HomeScreen() {
                     </View>
                 )}
             />
-
         </View>
     );
 }
@@ -99,10 +104,20 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 16,
     },
+    userInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
     userPhoto: {
         width: 40,
         height: 40,
         borderRadius: 20,
+    },
+    Name: {
+        marginLeft: 10,
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#333',
     },
     searchContainer: {
         flexDirection: 'row',

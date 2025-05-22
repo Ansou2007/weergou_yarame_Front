@@ -17,11 +17,11 @@ function TabsWithAuth() {
   const router = useRouter();
 
   // Redirection si non connecté
-  useEffect(() => {
-    if (!userToken) {
-      router.replace('/connexion_inscription/LoginScreen');
-    }
-  }, [userToken]);
+  // useEffect(() => {
+  //   if (!userToken) {
+  //     router.replace('/connexion_inscription/LoginScreen');
+  //   }
+  // }, [userToken]);
 
   return (
     <Tabs

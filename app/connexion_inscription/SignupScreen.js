@@ -1,78 +1,150 @@
-import { Image, StyleSheet, Text, View, TextInput, TouchableOpacity, } from "react-native";
+import {
+  Image,
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  ActivityIndicator
+} from "react-native";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import React from "react";
-import { useNavigation } from "expo-router";
-import { useRouter } from "expo-router";
-import { useEffect } from "react";
-// import { TextInput } from "react-native-web";
+import React, { useState, useEffect, useContext } from "react";
+import { useNavigation, useRouter } from "expo-router";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { AuthContext } from '@/context/AuthContext';
 
 const SignupScreen = () => {
-    const router = useRouter(); // Utilisation du routeur pour la navigation;
-    const navigation = useNavigation();
+  const router = useRouter();
+  const navigation = useNavigation();
+  const { login } = useContext(AuthContext);
 
-    // ce  code masque les onglet situé en bas du page;
-    useEffect(() => {
-        navigation.setOptions({ tabBarStyle: { display: "none" } });
-    }, [navigation]);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [telephone, setTelephone] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
-    return (
-        <View style={styles.container}>
-            <View style={styles.topImageContainer}>
-                <Image
-                    source={require('@/assets/images/topVector.png')}
-                    style={styles.topImage}
-                />
-            </View>
-            <View style={styles.helloContainer}>
-                <Text style={styles.helloText}>Creation de compte</Text>
-            </View>
+  useEffect(() => {
+    navigation.setOptions({ tabBarStyle: { display: "none" } });
+  }, [navigation]);
 
-            <View style={styles.inputContainer}>
-                <FontAwesome name="user" size={24} color="#9A9A9A" style={styles.inputIcon} />
-                <TextInput style={styles.textInput} placeholder="Nom complet" />
+  const handleSignup = async () => {
+  if (!name || !email || !telephone || !password) {
+    Alert.alert("Erreur", "Veuillez remplir tous les champs.");
+    return;
+  }
 
-            </View>
-            <View style={styles.inputContainer}>
+  setLoading(true);
 
-                <MaterialCommunityIcons name="email" size={24} color="#9A9A9A" style={styles.inputIcon} />
-                <TextInput style={styles.textInput} placeholder="Email" />
+  try {
+    const response = await fetch('https://wergouyaram.ctu.sn/api/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, telephone, password }),
+    });
 
-            </View>
+    const data = await response.json();
 
-            <View style={styles.inputContainer}>
-                <FontAwesome name="lock" size={24} color="#9A9A9A" style={styles.inputIcon} />
-                <TextInput style={styles.textInput} placeholder="Mot de pass" secureTextEntry />
+    if (!response.ok) {
+      throw new Error(data.message || "Erreur lors de l'inscription.");
+    }
 
-            </View>
+    Alert.alert("Succès", "Inscription réussie ! Veuillez vous connecter.");
+    router.replace("/connexion_inscription/LoginScreen");
 
-
-
-            <View style={styles.inputContainer}>
-                <FontAwesome name="lock" size={24} color="#9A9A9A" style={styles.inputIcon} />
-                <TextInput style={styles.textInput} placeholder="Mot de pass" secureTextEntry />
-
-            </View>
-            <TouchableOpacity style={styles.button}>
-                <Text style={styles.buttonText}>S'inscrire</Text>
-            </TouchableOpacity>
+  } catch (error) {
+    Alert.alert("Erreur", error.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
 
-            <TouchableOpacity style={styles.SignButtonContainer} onPress={() => router.push("/connexion_inscription/LoginScreen")}>
-                <Text style={styles.inscrire}>Se connecter</Text>
-            </TouchableOpacity>
+  return (
+    <View style={styles.container}>
+      <View style={styles.topImageContainer}>
+        <Image
+          source={require('@/assets/images/topVector.png')}
+          style={styles.topImage}
+        />
+      </View>
 
-            <View style={styles.LeftvectorContainer}>
-                <Image
-                    source={require('@/assets/images/Vector.png')}
-                    style={styles.LeftvectorImage}
-                />
-            </View>
-        </View>
-    );
+      <View style={styles.helloContainer}>
+        <Text style={styles.helloText}>Création de compte</Text>
+      </View>
+
+      <View style={styles.inputContainer}>
+        <FontAwesome name="user" size={24} color="#9A9A9A" style={styles.inputIcon} />
+        <TextInput
+          style={styles.textInput}
+          placeholder="Nom complet"
+          value={name}
+          onChangeText={setName}
+        />
+      </View>
+
+      <View style={styles.inputContainer}>
+        <MaterialCommunityIcons name="email" size={24} color="#9A9A9A" style={styles.inputIcon} />
+        <TextInput
+          style={styles.textInput}
+          placeholder="Email"
+          keyboardType="email-address"
+          autoCapitalize="none"
+          value={email}
+          onChangeText={setEmail}
+        />
+      </View>
+
+      <View style={styles.inputContainer}>
+        <FontAwesome name="phone" size={24} color="#9A9A9A" style={styles.inputIcon} />
+        <TextInput
+          style={styles.textInput}
+          placeholder="Téléphone"
+          keyboardType="phone-pad"
+          value={telephone}
+          onChangeText={setTelephone}
+        />
+      </View>
+
+      <View style={styles.inputContainer}>
+        <FontAwesome name="lock" size={24} color="#9A9A9A" style={styles.inputIcon} />
+        <TextInput
+          style={styles.textInput}
+          placeholder="Mot de passe"
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+        />
+      </View>
+
+      <TouchableOpacity style={styles.button} onPress={handleSignup} disabled={loading}>
+        {loading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.buttonText}>S'inscrire</Text>
+        )}
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.SignButtonContainer}
+        onPress={() => router.push("/connexion_inscription/LoginScreen")}
+      >
+        <Text style={styles.inscrire}>Se connecter</Text>
+      </TouchableOpacity>
+
+      <View style={styles.LeftvectorContainer}>
+        <Image
+          source={require('@/assets/images/Vector.png')}
+          style={styles.LeftvectorImage}
+        />
+      </View>
+    </View>
+  );
 };
 
 export default SignupScreen;
+
 
 const styles = StyleSheet.create({
     container: {
